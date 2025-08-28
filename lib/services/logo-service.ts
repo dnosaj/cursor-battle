@@ -9,10 +9,10 @@ export interface LogoService {
 // Mock implementation for prototype
 export class MockLogoService implements LogoService {
   private defaultLogos = {
-    'tempo': '/images/tempo-logo.svg',
-    'v0': '/images/v0-logo.svg', 
-    'figma': '/images/figma-logo.svg',
-    'default': '/images/default-app-logo.svg'
+    'tempo': '/vibe-code-tests/images/tempo-logo.svg',
+    'v0': '/vibe-code-tests/images/v0-logo.svg', 
+    'figma': '/vibe-code-tests/images/figma-logo.svg',
+    'default': '/vibe-code-tests/images/default-app-logo.svg'
   };
 
   async extractLogo(url: string): Promise<string> {
@@ -41,19 +41,19 @@ export class WebScrapingLogoService implements LogoService {
       // const $ = cheerio.load(response.data);
       // Extract favicon or logo from meta tags, link tags, etc.
       
-      return '/images/default-app-logo.svg';
+      return '/vibe-code-tests/images/default-app-logo.svg';
     } catch (error) {
       console.error('Failed to extract logo:', error);
-      return '/images/default-app-logo.svg';
+      return '/vibe-code-tests/images/default-app-logo.svg';
     }
   }
 
   getDefaultLogos(): Record<string, string> {
     return {
-      'tempo': '/images/tempo-logo.svg',
-      'v0': '/images/v0-logo.svg',
-      'figma': '/images/figma-logo.svg',
-      'default': '/images/default-app-logo.svg'
+      'tempo': '/vibe-code-tests/images/tempo-logo.svg',
+      'v0': '/vibe-code-tests/images/v0-logo.svg',
+      'figma': '/vibe-code-tests/images/figma-logo.svg',
+      'default': '/vibe-code-tests/images/default-app-logo.svg'
     };
   }
 }
