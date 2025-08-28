@@ -1,7 +1,5 @@
-import { type ClassValue } from "clsx"
-
-// Simple utility functions without external dependencies for now
-export function cn(...inputs: ClassValue[]) {
+// Simple utility functions without external dependencies
+export function cn(...inputs: (string | undefined | null | false)[]) {
   // Simple class merging utility - replace with clsx + tailwind-merge later
   return inputs.filter(Boolean).join(' ');
 }
