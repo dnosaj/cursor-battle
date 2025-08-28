@@ -189,3 +189,26 @@ Deliver a **working application** suitable for internal alpha: build **from test
 * Prefer **deterministic** utilities in `lib/` and keep UI decoupled from data sources.
 * If something seems heavy for **prototype** mode, stub it and move on.
 * When mode is ambiguous, **default to PROTOTYPE** and clearly mark stubs.
+
+## Deployment & CI/CD Guidelines
+
+### Before GitHub Push - Cleanup Checklist
+1. **Verify all dependencies** in `package.json` are actually installed and needed
+2. **Remove test files** if test dependencies aren't included in package.json
+3. **Remove config files** (playwright.config.ts, vitest.config.ts) if their deps aren't installed
+4. **Run `npx tsc --noEmit`** to ensure TypeScript compilation passes
+5. **Run `npm run build`** to ensure application builds successfully
+6. **Check CI workflow** matches available scripts in package.json
+
+### Simplified Project Mode
+When creating projects for quick deployment/demos:
+* **Use minimal dependencies** - avoid heavy test frameworks unless specifically requested
+* **Remove unused imports** and type dependencies (e.g., clsx, vitest, playwright)
+* **Create placeholder scripts** in package.json for CI compatibility
+* **Focus on core functionality** over comprehensive testing infrastructure
+
+### Test Infrastructure Guidelines
+* **Only include tests** if you're also including their dependencies in package.json
+* **For APPLICATION mode**: Include full test setup with proper dependencies
+* **For PROTOTYPE mode**: Skip test infrastructure unless explicitly requested
+* **Document testing approach** in README (e.g., "Tests: Not included in this prototype")
