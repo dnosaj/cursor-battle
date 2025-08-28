@@ -199,6 +199,11 @@ Deliver a **working application** suitable for internal alpha: build **from test
 4. **Run `npx tsc --noEmit`** to ensure TypeScript compilation passes
 5. **Run `npm run build`** to ensure application builds successfully
 6. **Check CI workflow** matches available scripts in package.json
+7. **For GitHub Pages deployment**:
+   - Verify `basePath` and `assetPrefix` match repository name
+   - Update all asset URLs to include basePath
+   - Test static export with `npx serve out/`
+   - Check `out/index.html` for correct asset paths
 
 ### Simplified Project Mode
 When creating projects for quick deployment/demos:
@@ -212,3 +217,84 @@ When creating projects for quick deployment/demos:
 * **For APPLICATION mode**: Include full test setup with proper dependencies
 * **For PROTOTYPE mode**: Skip test infrastructure unless explicitly requested
 * **Document testing approach** in README (e.g., "Tests: Not included in this prototype")
+
+### GitHub Pages Deployment Guidelines
+When deploying Next.js apps to GitHub Pages, always configure for static export:
+
+#### Required Next.js Configuration
+```javascript
+// next.config.mjs
+const nextConfig = {
+  output: 'export',
+  trailingSlash: true,
+  basePath: '/repository-name',        // CRITICAL: Match GitHub repo name
+  assetPrefix: '/repository-name',     // CRITICAL: Match GitHub repo name
+  images: {
+    unoptimized: true,
+  },
+};
+```
+
+#### Pre-Deployment Checklist for GitHub Pages
+1. **Set correct basePath** - must match GitHub repository name exactly
+2. **Update all asset paths** in code to include basePath:
+   - Logo URLs: `/repository-name/images/logo.svg`
+   - Static assets: `/repository-name/assets/...`
+   - API routes: Not supported in static export
+3. **Test static export locally**:
+   ```bash
+   npm run build
+   npx serve out/  # Test the exported static files
+   ```
+4. **Verify paths in generated HTML** - check `out/index.html` for correct asset paths
+5. **Remove server-side features** not supported in static export:
+   - API routes (`app/api/` folders)
+   - Server components with database calls
+   - Dynamic imports that require server-side processing
+   - Custom headers (they don't work with `output: 'export'`)
+
+#### GitHub Pages Deployment Workflow
+Use GitHub's official Next.js workflow, which includes:
+- Automatic package manager detection
+- Proper caching for faster builds
+- Static site generator configuration
+- Deployment to GitHub Pages environment
+
+#### Common GitHub Pages Issues to Avoid
+* **Wrong basePath**: App loads but CSS/JS/images don't work
+* **Absolute paths**: Assets 404 because they're not prefixed correctly
+* **Server features**: API routes, SSR, ISR don't work with static export
+* **Missing .nojekyll**: GitHub may process files as Jekyll site
+* **Case sensitivity**: GitHub Pages is case-sensitive, local dev might not be
+
+#### Repository Naming Convention
+* Use lowercase, hyphen-separated names for GitHub Pages compatibility
+* Repository name becomes the basePath: `my-app-name` → `/my-app-name`
+* Avoid special characters, spaces, or capital letters in repository names
+
+### Deployment Platform Quick Reference
+
+#### Vercel (Recommended for Next.js)
+- **No configuration needed** - works out of the box
+- **Supports all Next.js features** (SSR, API routes, ISR)
+- **Automatic deployments** from GitHub
+- **Custom domains** supported
+- **No basePath needed** - app runs at root
+
+#### Netlify
+- **Requires build configuration** for Next.js
+- **Static export recommended**: `output: 'export'`
+- **No basePath needed** for custom domains
+- **Manual configuration** for dynamic features
+
+#### GitHub Pages
+- **Static export only**: `output: 'export'`
+- **basePath required**: Must match repository name
+- **Limited features**: No API routes or SSR
+- **Free hosting** for public repositories
+
+#### Self-hosted (Docker/VPS)
+- **Full Next.js support** - all features work
+- **Custom configuration** needed
+- **Domain and SSL** management required
+- **Server maintenance** responsibility
