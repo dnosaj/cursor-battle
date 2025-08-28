@@ -1,0 +1,191 @@
+# .cursorrules
+
+Author: Jason George  · Scope: Repo‑wide rules for Cursor/Claude
+
+> **Purpose**: Give Cursor/Claude two operating modes. When I say **"prototype"**, generate a gorgeous, clickable **UX-first prototype** with future-friendly **architecture stubs**, but **no heavy back‑end**. When I say **"application"**, switch to **tests-first, production-grade** implementation with deep scaffolding (APIs, auth, CI, MCP tooling).
+
+---
+
+## Global Defaults (apply to both modes)
+
+* **Stack defaults**: Next.js 14 App Router, TypeScript, Tailwind, shadcn/ui, Zustand (light state), pnpm.
+* **Design**: Clean, calm neutrals; generous whitespace; strong focus indicators; prefers motion (Framer Motion) with reduced‑motion fallback.
+* **Accessibility**: Keyboard reachable, aria labels for inputs and interactive regions, color‑contrast safe.
+* **Files & structure** (create even in prototype mode):
+
+  * `app/` (routes), `components/` (UI), `lib/` (pure logic), `types/` (shared types), `mocks/` (fixtures), `scripts/` (project scripts), `.github/` (workflows placeholder), `tests/`.
+* **Clarity**: Add concise `README.md` with "Mode used," "What's mocked," and "Next steps."
+* **Ask sparingly**: Only ask clarifying questions if a blocking ambiguity exists; otherwise make sane assumptions and document them in code comments.
+
+> **Triggering modes**: Detect the exact keyword **prototype** or **application** in my request. If neither appears, default to **prototype** for new ideas.
+
+---
+
+## MODE: PROTOTYPE (UX‑first, clickthrough, no heavy lifting)
+
+### Objective
+
+Deliver a **polished, single‑screen or short‑flow prototype** that I can click through to validate UX and product decisions. Ship **architecture placeholders** for later, but **avoid building real integrations**.
+
+### Do
+
+* Create **architecture stubs** so the repo can evolve: folders, empty API routes with TODOs, type definitions, mock adapters, feature flags.
+* Use **mock data** from `mocks/` and **deterministic pure functions** in `lib/` so UI is believable.
+* Prioritize **visual polish**: micro‑interactions, loading skeletons, optimistic UI, empty states, error states, success toasts.
+* Include **"Try sample data"** buttons and seed fixtures.
+* Provide **Export** actions when useful (e.g., Markdown, JSON), implemented as **client‑side**.
+* Annotate every not‑yet‑built integration with `// TODO(app):` comments that name the expected module, interface, and contract.
+
+### Don't
+
+* **Don't** connect to real databases, external APIs, auth, file storage, queues, or third‑party SDKs.
+* **Don't** pull in heavyweight state libraries or server infra unless visually required.
+* **Don't** generate exhaustive tests; include only smoke tests or story-level examples if needed for UI confidence.
+
+### Required Deliverables
+
+* **Clickable UX** with realistic interactions, spinners, skeletons, and validation.
+* **Architecture map** in `README.md` showing intended modules for real build.
+* **Type‑safe stubs**: interface contracts for services in `lib/services/*.ts` and `types/*.ts`.
+* **MCP note**: If MCPs (e.g., Playwright MCP, Git MCP) are installed, document how they'll be used later, but **do not invoke** heavy MCP flows now.
+
+### Prototype Project Template (apply unless I specify otherwise)
+
+```
+/ (repo)
+  README.md
+  .cursorrules
+  package.json (scripts: dev, build, lint, preview)
+  tsconfig.json
+  next.config.mjs
+  tailwind.config.ts
+  app/
+    layout.tsx
+    page.tsx  // Main screen for prototype flow
+    api/
+      _stubs/README.md  // Describe future endpoints
+  components/
+    ui/  // shadcn generated components
+  lib/
+    sim/   // deterministic calculators or formatters
+    services/ // interface-only service contracts with mock adapters
+  mocks/
+    fixtures.ts  // sample JSON/CSV strings
+  types/
+    domain.ts
+  tests/
+    ui-smoke.spec.tsx  // minimal smoke test
+```
+
+### Quality Bar (prototype)
+
+* Build runs with `pnpm dev`. No runtime errors. TypeScript strict passes. ESLint minimal.
+* Visuals: tasteful animations, empty/error states, keyboard navigation.
+* All **external** functionality must be **mocked**.
+
+---
+
+## MODE: APPLICATION (tests‑first, production‑grade)
+
+### Objective
+
+Deliver a **working application** suitable for internal alpha: build **from tests first**, wire real back‑end pieces, and set up CI/CD scaffolding and **MCP** tooling where available.
+
+### Process (strict)
+
+1. **Requirements spec**: Generate `docs/spec.md` with scope, non‑functionals, data model, risks.
+2. **Test plan first**: Create `tests/plan.md` and initial **failing tests**:
+
+   * **Unit** (Vitest) for domain logic in `lib/`.
+   * **Component** (React Testing Library) for critical UI.
+   * **E2E** (Playwright). If **Playwright MCP** is available, use it for execution; otherwise standard Playwright.
+3. **Implement** minimal code to pass tests, layering by feature. Keep adapters behind interfaces.
+4. **Quality gates**: Lint, type‑check, test on every commit. Configure GitHub Actions placeholders.
+5. **Docs**: Update `README.md` with env setup, run scripts, and architecture decisions (ADR).
+
+### Must Include
+
+* **Auth** placeholder with strategy chosen (e.g., NextAuth with credentials/provider) and secure defaults.
+* **Data**: actual database (e.g., Postgres via Prisma) **if** the feature requires persistence; otherwise document why not.
+* **API**: REST or tRPC route handlers with input validation (zod), error handling, and logging.
+* **Configuration**: `.env.example`, `config/*.ts` with schema validation.
+* **Observability**: logger (pino) and minimal request metrics stub.
+* **Playwright**: headless E2E tests; record artifacts. Prefer **MCP‑based invocation** if present.
+* **Security posture**: basic rate limiting, input sanitization, CSRF/XSS protections, secure headers (next-safe). Threat model summary in `docs/security.md`.
+
+### MCP Guidance
+
+* If MCP tools are installed (Playwright MCP, Git MCP, FS MCP):
+
+  * Prefer **MCP commands** for running tests, formatting, or code mods.
+  * **Do not** re‑download large binaries if MCP provides them.
+  * Document MCP commands in `README.md` under "MCP Usage."
+
+### Application Project Template (expand the prototype layout)
+
+```
+/ (repo)
+  docs/
+    spec.md
+    security.md
+    adr/0001-initial-choices.md
+  .github/workflows/ci.yml  // lint + typecheck + unit + e2e
+  prisma/  // if using Postgres/Prisma
+  app/
+    api/(routes)  // real handlers with zod validation
+    (auth)/       // NextAuth setup if applicable
+  lib/
+    services/ (real adapters + mocks for tests)
+    db/          // Prisma client wrappers
+    logger.ts
+  tests/
+    unit/**/*.spec.ts
+    component/**/*.spec.tsx
+    e2e/**/*.spec.ts
+  scripts/
+    seed.ts
+```
+
+### Quality Bar (application)
+
+* **All tests pass** locally and in CI. Coverage targets defined in `tests/plan.md`.
+* **Security lint** (eslint‑plugin‑security) clean. Zod input validation for APIs.
+* **Performance**: basic Lighthouse run with scores documented.
+
+### Non‑Goals (application)
+
+* Fancy visual polish is secondary to reliability. Keep animations restrained and performant.
+
+---
+
+## Command Phrases (how I talk to you)
+
+* **Prototype**: "Prototype the Action Scope Composer as a single‑page app with mock data and gorgeous UI." → You follow **MODE: PROTOTYPE** rules.
+* **Application**: "Build the Data Collider as an application with Postgres, auth, zod‑validated APIs, and Playwright tests." → You follow **MODE: APPLICATION** rules.
+
+---
+
+## Checklists
+
+### Prototype PR Checklist
+
+* [ ] UX flow is fully clickable with skeletons and error/empty states.
+* [ ] All external services mocked; no network calls.
+* [ ] README includes architecture map and next steps.
+* [ ] Types are defined for domain objects.
+
+### Application PR Checklist
+
+* [ ] `docs/spec.md` committed and current.
+* [ ] Tests created first; CI runs unit + component + E2E.
+* [ ] Env config validated; secrets not committed.
+* [ ] APIs validated with zod and logged.
+* [ ] Security basics (headers, rate limiting) present.
+
+---
+
+## Notes for Claude/Cursor
+
+* Prefer **deterministic** utilities in `lib/` and keep UI decoupled from data sources.
+* If something seems heavy for **prototype** mode, stub it and move on.
+* When mode is ambiguous, **default to PROTOTYPE** and clearly mark stubs.
