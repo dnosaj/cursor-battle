@@ -3,8 +3,6 @@ import { VibeApp, AppState } from '@/types/domain';
 
 interface AppStore extends AppState {
   setSelectedApp: (url: string | null) => void;
-  addApp: (app: Omit<VibeApp, 'id'>) => void;
-  setAddModalOpen: (open: boolean) => void;
   removeApp: (id: string) => void;
   updateApp: (id: string, updates: Partial<VibeApp>) => void;
 }
@@ -12,40 +10,23 @@ interface AppStore extends AppState {
 export const useAppStore = create<AppStore>((set) => ({
   apps: [
     {
-      id: 'tempo',
-      name: 'Tempo',
-      url: 'https://tempo-deployment-c835d2d2-97e8-40cc-two.vercel.app/',
-      logoUrl: '/vibe-code-tests/images/tempo-logo.svg',
+      id: 'claude-code',
+      name: 'Claude Code',
+      url: 'https://claude-credit-tracker.vercel.app/',
+      logoUrl: '/images/claude-icon-8x.png',
       isDefault: true,
     },
     {
-      id: 'v0',
-      name: 'V0',
-      url: 'https://v0-agent-action-scope-composer.vercel.app/',
-      logoUrl: '/vibe-code-tests/images/v0-logo.svg',
-      isDefault: true,
-    },
-    {
-      id: 'figma',
-      name: 'Figma',
-      url: 'https://cloud-raft-91473432.figma.site/',
-      logoUrl: '/vibe-code-tests/images/figma-logo.svg',
+      id: 'agent-claude',
+      name: 'Agent Claude',
+      url: 'https://agtech-credit-tracker-s3xf.vercel.app/',
+      logoUrl: '/images/cursor logo.jpeg',
       isDefault: true,
     },
   ],
   selectedAppUrl: null,
-  isAddModalOpen: false,
   
   setSelectedApp: (url) => set({ selectedAppUrl: url }),
-  
-  addApp: (appData) => set((state) => ({
-    apps: [...state.apps, {
-      ...appData,
-      id: `app-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    }]
-  })),
-  
-  setAddModalOpen: (open) => set({ isAddModalOpen: open }),
   
   removeApp: (id) => set((state) => ({
     apps: state.apps.filter(app => app.id !== id && !app.isDefault)

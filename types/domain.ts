@@ -9,10 +9,4 @@ export interface VibeApp {
 export interface AppState {
   apps: VibeApp[];
   selectedAppUrl: string | null;
-  isAddModalOpen: boolean;
-}
-
-export interface AddAppFormData {
-  name: string;
-  url: string;
 }
