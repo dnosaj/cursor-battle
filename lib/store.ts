@@ -14,7 +14,7 @@ export const useAppStore = create<AppStore>((set) => ({
     {
       id: 'tempo',
       name: 'Tempo',
-      url: 'https://c835d2d2-97e8-40cc-9f85-58e3260c091c.canvases.tempo.build/',
+      url: 'https://tempo-deployment-c835d2d2-97e8-40cc-two.vercel.app/',
       logoUrl: '/vibe-code-tests/images/tempo-logo.svg',
       isDefault: true,
     },
